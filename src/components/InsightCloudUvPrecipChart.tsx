@@ -1,6 +1,6 @@
 import React from "react"
 import { WeatherBundle } from "../types/weather"
-import { formatPercent, formatPrecipAmount, formatTime } from "../utils/format"
+import { formatPercent, formatPrecipAmount, formatTime, getComparableTimestamp } from "../utils/format"
 import { getDaylightWindow } from "../utils/insights"
 import PanelHeader from "./PanelHeader"
 import { panelTooltips } from "../content/panelTooltips"
@@ -98,10 +98,10 @@ const InsightCloudUvPrecipChart: React.FC<InsightCloudUvPrecipChartProps> = ({ d
   }))
   const amountPeak = precipAmount.reduce((best, value, index) => (value > best.value ? { index, value } : best), { index: 0, value: -1 })
   const firstDaylightIndex =
-    windowed.daylightStart !== null ? points.findIndex((point) => new Date(point.t).getTime() >= windowed.daylightStart) : -1
+    windowed.daylightStart !== null ? points.findIndex((point) => getComparableTimestamp(point.t) >= windowed.daylightStart) : -1
   const lastDaylightIndex =
     windowed.daylightEnd !== null
-      ? points.reduce((last, point, index) => (new Date(point.t).getTime() <= windowed.daylightEnd! ? index : last), -1)
+      ? points.reduce((last, point, index) => (getComparableTimestamp(point.t) <= windowed.daylightEnd! ? index : last), -1)
       : -1
   const daylightStartX =
     firstDaylightIndex >= 0 ? projectX(firstDaylightIndex) : null

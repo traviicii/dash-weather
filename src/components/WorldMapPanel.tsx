@@ -73,7 +73,6 @@ const WorldMapPanel: React.FC<WorldMapPanelProps> = ({ location }) => {
             <path d={landPath} />
           </g>
         ) : null}
-        <circle cx={width / 2} cy={height / 2} r={70} className="world-map-ring" />
         {point ? (
           <g>
             <circle cx={point.x} cy={point.y} r={5} className="world-map-dot" />

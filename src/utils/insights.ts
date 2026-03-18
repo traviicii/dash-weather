@@ -1,5 +1,5 @@
 import { DailyPoint, HourlyPoint, WeatherBundle } from "../types/weather"
-import { formatDateKey } from "./format"
+import { formatDateKey, getComparableTimestamp, getDateTimeParts } from "./format"
 
 export type HourlyWindow = {
   points: HourlyPoint[]
@@ -19,6 +19,22 @@ export type DaylightWindow = {
   containsNow: boolean
 }
 
+export type CurrentDayTimeline = {
+  points: HourlyPoint[]
+  label: string
+  dayKey: string
+  nowIdx: number
+  nowMinute: number
+  sunriseMinute: number | null
+  sunsetMinute: number | null
+  dayLengthMinutes: number | null
+  firstAvailableMinute: number | null
+  lastAvailableMinute: number | null
+  hasHistoryGap: boolean
+  hasFutureGap: boolean
+  today: DailyPoint | null
+}
+
 export const circularDelta = (prev: number, next: number) => {
   const diff = Math.abs(next - prev) % 360
   return diff > 180 ? 360 - diff : diff
@@ -27,10 +43,10 @@ export const circularDelta = (prev: number, next: number) => {
 export const signedCircularDelta = (prev: number, next: number) => ((next - prev + 540) % 360) - 180
 
 export const findClosestHourlyIndex = (hourly: HourlyPoint[], currentTimestamp: string) => {
-  const nowTime = new Date(currentTimestamp).getTime()
+  const nowTime = getComparableTimestamp(currentTimestamp)
   return hourly.reduce(
     (closest, point, index) => {
-      const diff = Math.abs(new Date(point.t).getTime() - nowTime)
+      const diff = Math.abs(getComparableTimestamp(point.t) - nowTime)
       return diff < closest.diff ? { index, diff } : closest
     },
     { index: 0, diff: Number.POSITIVE_INFINITY }
@@ -92,21 +108,30 @@ const findDailyForTimestamp = (daily: DailyPoint[], timestamp: string, timeZone?
   return daily.find((day) => formatDateKey(day.date, timeZone) === key)
 }
 
+const getTimePartsInTimeZone = (timestamp: string, timeZone?: string) => {
+  return getDateTimeParts(timestamp, timeZone)
+}
+
+export const getMinuteOfDayInTimeZone = (timestamp: string, timeZone?: string) => {
+  const { hour, minute } = getTimePartsInTimeZone(timestamp, timeZone)
+  return hour * 60 + minute
+}
+
 export const isDaylightTime = (timestamp: string, daily: DailyPoint[], timeZone?: string) => {
   const match = findDailyForTimestamp(daily, timestamp, timeZone)
   if (!match?.sunrise || !match?.sunset) return false
-  const ms = new Date(timestamp).getTime()
-  return ms >= new Date(match.sunrise).getTime() && ms <= new Date(match.sunset).getTime()
+  const ms = getComparableTimestamp(timestamp)
+  return ms >= getComparableTimestamp(match.sunrise) && ms <= getComparableTimestamp(match.sunset)
 }
 
 export const getDaylightWindow = (data: WeatherBundle) => {
   const daily = data.forecast10d?.length ? data.forecast10d : data.daily
-  const nowMs = new Date(data.current.timestamp).getTime()
+  const nowMs = getComparableTimestamp(data.current.timestamp)
   const targetDay =
     daily.find((day) => {
       if (!day.sunrise || !day.sunset) return false
-      const sunrise = new Date(day.sunrise).getTime()
-      const sunset = new Date(day.sunset).getTime()
+      const sunrise = getComparableTimestamp(day.sunrise)
+      const sunset = getComparableTimestamp(day.sunset)
       return nowMs <= sunset || nowMs <= sunrise
     }) ?? daily[0]
 
@@ -122,12 +147,12 @@ export const getDaylightWindow = (data: WeatherBundle) => {
     }
   }
 
-  const sunrise = new Date(targetDay.sunrise).getTime()
-  const sunset = new Date(targetDay.sunset).getTime()
+  const sunrise = getComparableTimestamp(targetDay.sunrise)
+  const sunset = getComparableTimestamp(targetDay.sunset)
   const paddedStart = sunrise - 60 * 60 * 1000
   const paddedEnd = sunset + 60 * 60 * 1000
   const points = (data.hourly ?? []).filter((point) => {
-    const ts = new Date(point.t).getTime()
+    const ts = getComparableTimestamp(point.t)
     return ts >= paddedStart && ts <= paddedEnd
   })
 
@@ -154,6 +179,78 @@ export const getDaylightWindow = (data: WeatherBundle) => {
     nowIdx,
     containsNow: nowMs >= paddedStart && nowMs <= paddedEnd
   }
+}
+
+export const getCurrentDayTimeline = (data: WeatherBundle): CurrentDayTimeline => {
+  const timeZone = data.location.timezone
+  const daily = data.forecast10d?.length ? data.forecast10d : data.daily
+  const dayKey = formatDateKey(data.current.timestamp, timeZone)
+  const today = findDailyForTimestamp(daily, data.current.timestamp, timeZone) ?? daily[0] ?? null
+  const points = (data.hourly ?? [])
+    .filter((point) => formatDateKey(point.t, timeZone) === dayKey)
+    .sort((a, b) => getComparableTimestamp(a.t) - getComparableTimestamp(b.t))
+
+  const nowIdx = points.length ? findClosestHourlyIndex(points, data.current.timestamp) : 0
+  const nowMinute = getMinuteOfDayInTimeZone(data.current.timestamp, timeZone)
+  const sunriseMinute = today?.sunrise ? getMinuteOfDayInTimeZone(today.sunrise, timeZone) : null
+  const sunsetMinute = today?.sunset ? getMinuteOfDayInTimeZone(today.sunset, timeZone) : null
+  const dayLengthMinutes =
+    sunriseMinute !== null && sunsetMinute !== null && sunsetMinute >= sunriseMinute
+      ? sunsetMinute - sunriseMinute
+      : null
+  const firstAvailableMinute = points.length ? getMinuteOfDayInTimeZone(points[0].t, timeZone) : null
+  const lastAvailableMinute = points.length ? getMinuteOfDayInTimeZone(points[points.length - 1].t, timeZone) : null
+
+  return {
+    points,
+    label: "Current local day",
+    dayKey,
+    nowIdx,
+    nowMinute,
+    sunriseMinute,
+    sunsetMinute,
+    dayLengthMinutes,
+    firstAvailableMinute,
+    lastAvailableMinute,
+    hasHistoryGap: firstAvailableMinute !== null && firstAvailableMinute > 0,
+    hasFutureGap: lastAvailableMinute !== null && lastAvailableMinute < 23 * 60,
+    today
+  }
+}
+
+export const describeThermalPhase = (params: {
+  nowMinute: number
+  sunriseMinute: number | null
+  sunsetMinute: number | null
+  highMinute: number | null
+}) => {
+  const { nowMinute, sunriseMinute, sunsetMinute, highMinute } = params
+
+  if (sunriseMinute !== null && nowMinute < sunriseMinute) {
+    return "Pre-dawn cooling"
+  }
+
+  if (sunsetMinute !== null && nowMinute >= sunsetMinute + 120) {
+    return "Night cooling"
+  }
+
+  if (sunsetMinute !== null && nowMinute >= sunsetMinute) {
+    return "Evening cooldown"
+  }
+
+  if (highMinute !== null && Math.abs(nowMinute - highMinute) <= 90) {
+    return "Afternoon peak"
+  }
+
+  if (sunriseMinute !== null && nowMinute <= sunriseMinute + 180) {
+    return "Daylight warming"
+  }
+
+  if (highMinute !== null && nowMinute < highMinute) {
+    return "Daylight warming"
+  }
+
+  return "Evening cooldown"
 }
 
 export const describeMoistureState = (params: {

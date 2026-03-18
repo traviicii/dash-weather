@@ -30,11 +30,89 @@ export const formatPrecipAmount = (value: number, units: "imperial" | "metric") 
   return `${safe.toFixed(decimals)} ${units === "imperial" ? "in" : "mm"}`
 }
 
-type DateLike = string | Date
+export type DateLike = string | Date
 
 const toDate = (value: DateLike) => (value instanceof Date ? value : new Date(value))
 
+const naiveDateTimeRegex = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?$/
+
+export const parseNaiveLocalDateTime = (value: DateLike) => {
+  if (value instanceof Date || typeof value !== "string") return null
+  if (/[zZ]|[+-]\d{2}:\d{2}$/.test(value)) return null
+  const match = value.match(naiveDateTimeRegex)
+  if (!match) return null
+
+  return {
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3]),
+    hour: Number(match[4] ?? "0"),
+    minute: Number(match[5] ?? "0"),
+    second: Number(match[6] ?? "0")
+  }
+}
+
+export const getComparableTimestamp = (value: DateLike) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return Date.UTC(naive.year, naive.month - 1, naive.day, naive.hour, naive.minute, naive.second)
+  }
+  return toDate(value).getTime()
+}
+
+export const getDateTimeParts = (value: DateLike, timeZone?: string) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return naive
+  }
+
+  const date = toDate(value)
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      timeZone: timeZone && timeZone !== "auto" ? timeZone : undefined
+    }).formatToParts(date)
+
+    const getPart = (type: string, fallback: string) => parts.find((part) => part.type === type)?.value ?? fallback
+
+    return {
+      year: Number(getPart("year", String(date.getFullYear()))),
+      month: Number(getPart("month", String(date.getMonth() + 1))),
+      day: Number(getPart("day", String(date.getDate()))),
+      hour: Number(getPart("hour", String(date.getHours()))),
+      minute: Number(getPart("minute", String(date.getMinutes()))),
+      second: 0
+    }
+  } catch {
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      second: date.getSeconds()
+    }
+  }
+}
+
+const monthShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+const formatHourMinute = (hour: number, minute: number) => {
+  const suffix = hour >= 12 ? "PM" : "AM"
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12
+  return `${hour12}:${String(minute).padStart(2, "0")} ${suffix}`
+}
+
 export const formatTime = (value: DateLike, timeZone?: string) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return formatHourMinute(naive.hour, naive.minute)
+  }
   const date = toDate(value)
   try {
     return new Intl.DateTimeFormat(undefined, {
@@ -51,6 +129,12 @@ export const formatTime = (value: DateLike, timeZone?: string) => {
 }
 
 export const formatDay = (value: DateLike, timeZone?: string) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return new Intl.DateTimeFormat(undefined, {
+      weekday: "short"
+    }).format(new Date(naive.year, naive.month - 1, naive.day))
+  }
   const date = toDate(value)
   try {
     return new Intl.DateTimeFormat(undefined, {
@@ -65,6 +149,10 @@ export const formatDay = (value: DateLike, timeZone?: string) => {
 }
 
 export const formatDate = (value: DateLike, timeZone?: string) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return `${monthShort[naive.month - 1]} ${naive.day}`
+  }
   const date = toDate(value)
   try {
     return new Intl.DateTimeFormat(undefined, {
@@ -81,6 +169,10 @@ export const formatDate = (value: DateLike, timeZone?: string) => {
 }
 
 export const formatDateLong = (value: DateLike, timeZone?: string) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return `${monthShort[naive.month - 1]} ${naive.day}, ${naive.year}`
+  }
   const date = toDate(value)
   try {
     return new Intl.DateTimeFormat(undefined, {
@@ -99,6 +191,10 @@ export const formatDateLong = (value: DateLike, timeZone?: string) => {
 }
 
 export const formatDateKey = (value: DateLike, timeZone?: string) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return `${naive.year}-${String(naive.month).padStart(2, "0")}-${String(naive.day).padStart(2, "0")}`
+  }
   const date = toDate(value)
   try {
     const parts = new Intl.DateTimeFormat("en-CA", {
@@ -117,6 +213,10 @@ export const formatDateKey = (value: DateLike, timeZone?: string) => {
 }
 
 export const getHourInTimeZone = (value: DateLike, timeZone?: string) => {
+  const naive = parseNaiveLocalDateTime(value)
+  if (naive) {
+    return naive.hour
+  }
   const date = toDate(value)
   try {
     const parts = new Intl.DateTimeFormat(undefined, {

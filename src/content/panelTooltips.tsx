@@ -93,11 +93,11 @@ export const panelTooltips = {
   ),
   daylight: (
     <TooltipContent
-      summary="This panel ties temperature movement to the daylight cycle so the warming curve, peak, and evening drop make intuitive sense."
-      readAs="Read the sun markers and the current-time marker first, then compare them to the thermal line. It helps explain whether a rise or drop is time-of-day driven or weather driven."
+      summary="This is a current-day timeline that connects sunlight and temperature. The top lane shows the local light cycle; the lower lane shows how the thermal curve is responding to it."
+      readAs="Read the light cycle first: sunrise, sunset, and the current-time marker. Then use the thermal curve, high/low labels, and the thermal-phase card to see whether the day is warming, peaking, or cooling."
       watchFor={[
         "If temperatures flatten or fall well before sunset, clouds or advection may be overpowering the normal daylight warming cycle.",
-        "A rapid drop soon after sunset often shows dry air and efficient overnight cooling."
+        "If earlier same-day history is unavailable on the backup provider, that missing section is shown as unavailable rather than estimated."
       ]}
     />
   ),

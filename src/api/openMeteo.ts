@@ -1,4 +1,5 @@
 import { Location, WeatherBundle } from "../types/weather"
+import { getComparableTimestamp } from "../utils/format"
 import { weatherCodeToLabel } from "../utils/weather"
 import { fetchWeatherFromOpenWeather, isOpenWeatherConfigured } from "./openWeather"
 
@@ -109,11 +110,11 @@ const fetchWeatherFromOpenMeteo = async (location: Location, units: Units): Prom
 
   const hourlyTimes: string[] = data.hourly?.time ?? []
   const currentTime = data.current?.time ?? new Date().toISOString()
-  const nowTime = new Date(currentTime).getTime()
+  const nowTime = getComparableTimestamp(currentTime)
   let nowIndex = 0
   let closest = Number.POSITIVE_INFINITY
   hourlyTimes.forEach((t: string, i: number) => {
-    const diff = Math.abs(new Date(t).getTime() - nowTime)
+    const diff = Math.abs(getComparableTimestamp(t) - nowTime)
     if (diff < closest) {
       closest = diff
       nowIndex = i

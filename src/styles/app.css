@@ -818,7 +818,11 @@
 
 .moon-panel {
   align-self: start;
-  padding: 14px 16px;
+  padding: 12px 14px;
+}
+
+.moon-panel .chart-body {
+  gap: 10px;
 }
 
 .celestial-night {
@@ -1724,12 +1728,6 @@
   fill-rule: evenodd;
 }
 
-.world-map-ring {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.08);
-  stroke-width: 1;
-}
-
 .world-map-dot {
   fill: var(--accent);
 }
@@ -2150,16 +2148,209 @@
   fill: rgba(240, 200, 8, 0.44);
 }
 
-.relationship-panel .moon-body.dense {
-  grid-template-columns: 120px 1fr;
-  gap: 18px;
-  align-items: center;
-  margin-bottom: 10px;
+.daylight-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.moon-stats.expanded {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px 14px;
+.daylight-summary-card {
+  display: grid;
+  gap: 7px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(230, 238, 248, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.daylight-summary-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+}
+
+.daylight-summary-value {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-1);
+  font-family: var(--font-mono);
+}
+
+.daylight-summary-value.small {
+  font-size: 0.92rem;
+}
+
+.daylight-summary-note {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+
+.daylight-summary-foot {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+}
+
+.daylight-moon-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.daylight-moon-disc {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+}
+
+.daylight-moon-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.daylight-phase-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(69, 166, 255, 0.28);
+  background: rgba(69, 166, 255, 0.08);
+  color: var(--accent);
+  font-size: 0.7rem;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.celestial-light-track {
+  fill: rgba(255, 255, 255, 0.03);
+}
+
+.celestial-thermal-track {
+  fill: rgba(255, 255, 255, 0.015);
+}
+
+.celestial-day-band {
+  fill: rgba(69, 166, 255, 0.08);
+}
+
+.celestial-day-band.thermal {
+  fill: rgba(69, 166, 255, 0.04);
+}
+
+.celestial-hour-guide {
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
+}
+
+.celestial-hour-guide.major {
+  stroke: rgba(255, 255, 255, 0.14);
+}
+
+.celestial-track-label {
+  fill: var(--text-3);
+  font-size: 0.58rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.celestial-sun-path {
+  fill: none;
+  stroke: rgba(240, 200, 8, 0.92);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.celestial-sun-path-glow {
+  fill: none;
+  stroke: rgba(240, 200, 8, 0.16);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.celestial-sun-marker {
+  fill: var(--accent-yellow);
+  stroke: rgba(240, 200, 8, 0.42);
+  stroke-width: 2;
+}
+
+.celestial-sun-marker-ring {
+  fill: rgba(240, 200, 8, 0.08);
+  stroke: rgba(240, 200, 8, 0.4);
+  stroke-width: 1.2;
+}
+
+.celestial-solar-peak {
+  fill: rgba(240, 200, 8, 0.96);
+  stroke: rgba(240, 200, 8, 0.36);
+  stroke-width: 1.6;
+}
+
+.celestial-solar-peak-ring {
+  fill: rgba(240, 200, 8, 0.04);
+  stroke: rgba(240, 200, 8, 0.2);
+  stroke-width: 1.2;
+}
+
+.celestial-solar-peak-label {
+  fill: rgba(240, 200, 8, 0.92);
+}
+
+.celestial-marker {
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.celestial-marker-label {
+  fill: var(--text-2);
+  font-size: 0.58rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.celestial-unavailable {
+  fill: rgba(11, 15, 20, 0.42);
+}
+
+.celestial-gap-label {
+  fill: var(--text-3);
+  font-size: 0.56rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.celestial-temp-fill {
+  fill: rgba(255, 75, 75, 0.08);
+}
+
+.celestial-temp-line {
+  fill: none;
+  stroke: var(--accent-red);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.celestial-current-point {
+  fill: var(--text-1);
+  stroke: rgba(230, 238, 248, 0.35);
+  stroke-width: 2;
+}
+
+.celestial-current-label {
+  fill: var(--text-1);
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
 }
 
 .celestial-point {
@@ -2245,6 +2436,10 @@
 
   .holo-right {
     justify-items: start;
+  }
+
+  .daylight-summary-grid {
+    grid-template-columns: 1fr;
   }
 
   .forecast-10d .forecast-grid {
