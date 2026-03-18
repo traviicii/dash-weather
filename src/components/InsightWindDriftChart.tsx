@@ -163,7 +163,7 @@ const InsightWindDriftChart: React.FC<InsightWindDriftChartProps> = ({ data }) =
           {directionTicks.map((tick) => {
             const y = directionY(tick.value)
             return (
-              <g key={tick.label}>
+              <g key={`dir-tick-${tick.value}`}>
                 <line x1={leftPad} y1={y} x2={width - rightPad} y2={y} className="chart-grid" />
                 <text x={leftPad - 8} y={y + 3} textAnchor="end" className="chart-label chart-label-direction">
                   {tick.label}
