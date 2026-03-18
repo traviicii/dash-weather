@@ -1,0 +1,64 @@
+:root {
+  color-scheme: dark;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --bg-1: #0b0f14;
+  --bg-2: #0f141b;
+  --bg-3: #141a21;
+  --surface-1: rgba(20, 26, 33, 0.92);
+  --surface-2: rgba(26, 33, 41, 0.88);
+  --surface-3: rgba(30, 38, 48, 0.8);
+
+  --text-1: #e6eef8;
+  --text-2: #c7d3e1;
+  --text-3: #9fb0c2;
+
+  --accent: #45a6ff;
+  --accent-red: #ff4b4b;
+  --accent-blue: #3d7fff;
+  --accent-green: #50c878;
+  --accent-yellow: #f0c808;
+
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+
+  --space-1: 6px;
+  --space-2: 12px;
+  --space-3: 18px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 42px;
+
+  --shadow-soft: 0 12px 24px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 14px rgba(69, 166, 255, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text-1);
+  font-size: 16px;
+  line-height: 1.45;
+  background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+  background-attachment: fixed;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(69, 166, 255, 0.3);
+}
