@@ -62,17 +62,17 @@ const MoonPanel: React.FC<MoonPanelProps> = ({ data }) => {
   const hourly = timeline.points
   const hasTemps = hourly.length > 0
   const width = 760
-  const height = 286
+  const height = 270
   const leftPad = 48
   const rightPad = 28
   const innerWidth = width - leftPad - rightPad
-  const lightTop = 24
-  const lightHeight = 48
+  const lightTop = 20
+  const lightHeight = 44
   const lightBottom = lightTop + lightHeight
-  const thermalTop = 90
-  const thermalHeight = 116
+  const thermalTop = 78
+  const thermalHeight = 110
   const thermalBottom = thermalTop + thermalHeight
-  const xLabelY = thermalBottom + 18
+  const xLabelY = thermalBottom + 16
 
   const temps = hourly.map((point) => point.temp ?? data.current.temp)
   const currentLow = hasTemps
@@ -102,7 +102,7 @@ const MoonPanel: React.FC<MoonPanelProps> = ({ data }) => {
   const tickMinutes = [0, 180, 360, 540, 720, 900, 1080, 1260, 1440]
   const axisTicks = [axisMin, (axisMin + axisMax) / 2, axisMax]
 
-  const sunArcBaseline = lightBottom - 8
+  const sunArcBaseline = lightBottom - 7
   const sunArcPeak = lightTop + 2
   const hasSunArc =
     sunriseX !== null &&

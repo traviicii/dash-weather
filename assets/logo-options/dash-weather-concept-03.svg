@@ -1,0 +1,12 @@
+<svg width="720" height="160" viewBox="0 0 720 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Isobar Track -->
+  <path d="M48 34H118C151 34 176 53 176 80C176 107 151 126 118 126H48" stroke="#C7D3E1" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M64 50H115C140 50 157 63 157 80C157 97 140 110 115 110H64" stroke="#C7D3E1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.72"/>
+  <path d="M80 66H111C125 66 135 73 140 80C135 87 125 94 111 94H80" stroke="#C7D3E1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.48"/>
+  <path d="M74 116L104 84L126 97L165 54" stroke="#F0C808" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="218" y="76" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="46" font-weight="600" letter-spacing="0.1em">DASH</text>
+  <text x="220" y="114" fill="#C7D3E1" opacity="0.88" font-family="'IBM Plex Mono', monospace" font-size="24" font-weight="500" letter-spacing="0.34em">WEATHER</text>
+  <path d="M440 58C484 52 528 52 572 58" stroke="#C7D3E1" stroke-width="4" stroke-linecap="round" opacity="0.25"/>
+  <path d="M440 71C486 65 528 65 576 71" stroke="#F0C808" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+  <path d="M440 84C484 78 528 78 572 84" stroke="#C7D3E1" stroke-width="4" stroke-linecap="round" opacity="0.25"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg width="720" height="160" viewBox="0 0 720 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Signal Dash -->
+  <path d="M46 32V128H88C123 128 149 107 149 80C149 53 123 32 88 32H46Z" stroke="#C7D3E1" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M78 80H118" stroke="#F0C808" stroke-width="10" stroke-linecap="round"/>
+  <path d="M128 54L146 40" stroke="#F0C808" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="62" cy="80" r="4" fill="#C7D3E1"/>
+  <text x="190" y="77" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="50" font-weight="600" letter-spacing="0.08em">DASH</text>
+  <text x="193" y="114" fill="#C7D3E1" opacity="0.9" font-family="'IBM Plex Mono', monospace" font-size="24" font-weight="500" letter-spacing="0.32em">WEATHER</text>
+  <path d="M476 102H590" stroke="#F0C808" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,13 @@
+<svg width="720" height="160" viewBox="0 0 720 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="24" y="38" width="136" height="84" rx="18" stroke="#C7D3E1" stroke-width="6"/>
+  <path d="M40 66H144" stroke="#C7D3E1" stroke-width="3" stroke-linecap="round" opacity="0.18"/>
+  <path d="M40 82H144" stroke="#C7D3E1" stroke-width="3" stroke-linecap="round" opacity="0.18"/>
+  <path d="M40 98H144" stroke="#C7D3E1" stroke-width="3" stroke-linecap="round" opacity="0.18"/>
+  <path d="M52 98L70 89L90 91L107 82L132 77" stroke="#C7D3E1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.88"/>
+  <path d="M52 84L73 81L91 70L110 55L132 61" stroke="#F0C808" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M108 47V109" stroke="#C7D3E1" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+  <circle cx="108" cy="55" r="5" fill="#F0C808"/>
+  <path d="M176 80H200" stroke="#F0C808" stroke-width="6" stroke-linecap="round"/>
+  <text x="222" y="89" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="46" font-weight="600" letter-spacing="0.1em">DASH</text>
+  <text x="408" y="89" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="30" font-weight="600" letter-spacing="0.16em">WEATHER</text>
+</svg>

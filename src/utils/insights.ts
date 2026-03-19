@@ -1,5 +1,12 @@
 import { DailyPoint, HourlyPoint, WeatherBundle } from "../types/weather"
-import { formatDateKey, getComparableTimestamp, getDateTimeParts } from "./format"
+import {
+  formatDateKey,
+  formatDistance,
+  formatSpeed,
+  formatTime,
+  getComparableTimestamp,
+  getDateTimeParts
+} from "./format"
 
 export type HourlyWindow = {
   points: HourlyPoint[]
@@ -33,6 +40,18 @@ export type CurrentDayTimeline = {
   hasHistoryGap: boolean
   hasFutureGap: boolean
   today: DailyPoint | null
+}
+
+export type HeaderCue = {
+  label: string
+  value: string
+  detail: string
+}
+
+export type HeaderContext = {
+  localPhase: HeaderCue
+  weatherCue: HeaderCue
+  nextWatch: HeaderCue
 }
 
 export const circularDelta = (prev: number, next: number) => {
@@ -304,4 +323,212 @@ export const normalizeWeatherBundle = (bundle: WeatherBundle): WeatherBundle => 
       ? bundle.precipAmountAvailable
       : (bundle.hourly ?? []).some((point) => typeof point.precipAmount === "number"),
   uvHourlyReliable: typeof bundle.uvHourlyReliable === "boolean" ? bundle.uvHourlyReliable : true
+})
+
+const formatDeltaDegrees = (value: number) => `${Math.round(Math.abs(value))}°`
+
+const formatCompactChipTime = (value: string, timeZone?: string) => {
+  const { hour, minute } = getDateTimeParts(value, timeZone)
+  const suffix = hour >= 12 ? "PM" : "AM"
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12
+  return minute === 0 ? `${hour12} ${suffix}` : `${hour12}:${String(minute).padStart(2, "0")} ${suffix}`
+}
+
+const getLocalPhaseCue = (data: WeatherBundle): HeaderCue => {
+  const daily = data.forecast10d?.length ? data.forecast10d : data.daily
+  const today = findDailyForTimestamp(daily, data.current.timestamp, data.location.timezone) ?? daily[0]
+
+  if (!today?.sunrise || !today?.sunset) {
+    return {
+      label: "Local Phase",
+      value: "Local Day",
+      detail: "Sun timing syncing"
+    }
+  }
+
+  const nowMinute = getMinuteOfDayInTimeZone(data.current.timestamp, data.location.timezone)
+  const sunriseMinute = getMinuteOfDayInTimeZone(today.sunrise, data.location.timezone)
+  const sunsetMinute = getMinuteOfDayInTimeZone(today.sunset, data.location.timezone)
+
+  let value = "Daylight"
+  if (nowMinute < sunriseMinute - 90) {
+    value = "Night"
+  } else if (nowMinute < sunriseMinute) {
+    value = "Pre-dawn"
+  } else if (nowMinute <= sunsetMinute) {
+    value = "Daylight"
+  } else if (nowMinute <= sunsetMinute + 150) {
+    value = "Evening"
+  } else {
+    value = "Night"
+  }
+
+  return {
+    label: "Local Phase",
+    value,
+    detail: `Sunrise ${formatTime(today.sunrise, data.location.timezone)} · Sunset ${formatTime(today.sunset, data.location.timezone)}`
+  }
+}
+
+const getWeatherCue = (data: WeatherBundle): HeaderCue => {
+  const { current, units } = data
+  const moistureState = describeMoistureState({
+    temp: current.temp,
+    dewPoint: current.dewPoint,
+    humidity: current.humidity,
+    visibility: current.visibility,
+    precipProb: current.precipProb,
+    units
+  })
+  const feelsDelta = current.temp - current.feelsLike
+  const dewGap = Math.max(0, Math.round(current.temp - current.dewPoint))
+  const visibilityLimited = current.visibility <= (units === "imperial" ? 3219 : 3000)
+
+  if (current.precipProb >= 65) {
+    return {
+      label: "Right Now",
+      value: "Rain Risk",
+      detail: `Chance ${Math.round(current.precipProb)}% now`
+    }
+  }
+
+  if (visibilityLimited) {
+    return {
+      label: "Right Now",
+      value: "Low Visibility",
+      detail: `Range ${formatDistance(current.visibility, units)}`
+    }
+  }
+
+  if (feelsDelta >= 5 && current.windSpeed >= (units === "imperial" ? 8 : 13)) {
+    return {
+      label: "Right Now",
+      value: "Wind Chill",
+      detail: `Feels ${formatDeltaDegrees(feelsDelta)} colder`
+    }
+  }
+
+  if (moistureState === "Fog risk") {
+    return {
+      label: "Right Now",
+      value: "Low Visibility",
+      detail: `${formatDistance(current.visibility, units)} visibility`
+    }
+  }
+
+  if (moistureState === "Near saturation" || moistureState === "Damp") {
+    return {
+      label: "Right Now",
+      value: "Damp Air",
+      detail: `Dew-point gap ${dewGap}°`
+    }
+  }
+
+  if (moistureState === "Dry air") {
+    return {
+      label: "Right Now",
+      value: "Dry Air",
+      detail: `Dew-point gap ${dewGap}°`
+    }
+  }
+
+  if (current.precipProb <= 20) {
+    return {
+      label: "Right Now",
+      value: "Low rain risk",
+      detail: `Chance ${Math.round(current.precipProb)}% now`
+    }
+  }
+
+  return {
+    label: "Right Now",
+    value: "Comfortable",
+    detail: `Humidity ${Math.round(current.humidity)}%`
+  }
+}
+
+const getNextWatchCue = (data: WeatherBundle): HeaderCue => {
+  const window = getHourlyWindow(data, { historyHours: 0, futureHours: 6 })
+  const futurePoints = window.points.slice(window.nowIdx + 1)
+  const timeZone = data.location.timezone
+
+  if (!futurePoints.length) {
+    return {
+      label: "Coming Up",
+      value: "Holding steady",
+      detail: "No major shift ahead"
+    }
+  }
+
+  const rainThreshold = data.units === "imperial" ? 0.02 : 0.5
+  const rainPoint = futurePoints.find(
+    (point) => point.precipProb >= 45 || (typeof point.precipAmount === "number" && point.precipAmount >= rainThreshold)
+  )
+  if (rainPoint) {
+    const peakChance = Math.max(...futurePoints.map((point) => point.precipProb))
+    return {
+      label: "Coming Up",
+      value: `Rain ${formatCompactChipTime(rainPoint.t, timeZone)}`,
+      detail: `Peak chance ${Math.round(peakChance)}%`
+    }
+  }
+
+  const currentPoint = window.points[window.nowIdx]
+  const currentGust = currentPoint?.gust ?? currentPoint?.wind ?? data.current.windSpeed
+  const gustPoint = futurePoints.find((point) => {
+    const gust = point.gust ?? point.wind
+    return gust >= currentGust + (data.units === "imperial" ? 8 : 12) || gust >= (data.units === "imperial" ? 22 : 35)
+  })
+  if (gustPoint) {
+    const peakGust = gustPoint.gust ?? gustPoint.wind
+    return {
+      label: "Coming Up",
+      value: `Gusts ${formatCompactChipTime(gustPoint.t, timeZone)}`,
+      detail: `Peak gust ${formatSpeed(peakGust, data.units)}`
+    }
+  }
+
+  const daily = data.forecast10d?.length ? data.forecast10d : data.daily
+  const today = findDailyForTimestamp(daily, data.current.timestamp, timeZone) ?? daily[0]
+  const currentTime = getComparableTimestamp(data.current.timestamp)
+  const lastFuturePoint = futurePoints[futurePoints.length - 1]
+  const lastFutureTime = getComparableTimestamp(lastFuturePoint.t)
+  const sunsetTime = today?.sunset ? getComparableTimestamp(today.sunset) : null
+
+  if (today?.sunset && sunsetTime && currentTime < sunsetTime && lastFutureTime >= sunsetTime) {
+    return {
+      label: "Coming Up",
+      value: "Cooling After Sunset",
+      detail: `Sunset ${formatTime(today.sunset, timeZone)}`
+    }
+  }
+
+  const tempDelta = lastFuturePoint.temp - data.current.temp
+  if (tempDelta <= -3) {
+    return {
+      label: "Coming Up",
+      value: `Cooler ${formatCompactChipTime(lastFuturePoint.t, timeZone)}`,
+      detail: `About ${formatDeltaDegrees(tempDelta)} lower`
+    }
+  }
+
+  if (tempDelta >= 3) {
+    return {
+      label: "Coming Up",
+      value: `Warmer ${formatCompactChipTime(lastFuturePoint.t, timeZone)}`,
+      detail: `About ${formatDeltaDegrees(tempDelta)} higher`
+    }
+  }
+
+  return {
+    label: "Coming Up",
+    value: `Steady to ${formatCompactChipTime(lastFuturePoint.t, timeZone)}`,
+    detail: "Little change expected"
+  }
+}
+
+export const buildHeaderContext = (data: WeatherBundle): HeaderContext => ({
+  localPhase: getLocalPhaseCue(data),
+  weatherCue: getWeatherCue(data),
+  nextWatch: getNextWatchCue(data)
 })

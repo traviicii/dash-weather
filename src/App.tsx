@@ -36,6 +36,7 @@ const App: React.FC = () => {
   return (
     <div className="app holo-app">
       <HoloHeader
+        data={data}
         location={location}
         lastUpdated={data?.lastUpdated}
         timeZone={data?.location.timezone ?? location?.timezone}

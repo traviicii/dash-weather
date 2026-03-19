@@ -1,9 +1,11 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { Location } from "../types/weather"
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { Location, WeatherBundle } from "../types/weather"
 import { formatDate, formatTime } from "../utils/format"
+import { buildHeaderContext } from "../utils/insights"
 import LocationSearch from "./LocationSearch"
 
 type HoloHeaderProps = {
+  data?: WeatherBundle | null
   location: Location | null
   lastUpdated?: string
   timeZone?: string
@@ -16,7 +18,14 @@ type HoloHeaderProps = {
   error?: string | null
 }
 
+const formatZoneLabel = (timeZone?: string) => {
+  if (!timeZone || timeZone === "auto") return "Local zone"
+  const segments = timeZone.split("/")
+  return segments.slice(-2).join(" / ").replace(/_/g, " ")
+}
+
 const HoloHeader: React.FC<HoloHeaderProps> = ({
+  data,
   location,
   lastUpdated,
   timeZone,
@@ -34,6 +43,12 @@ const HoloHeader: React.FC<HoloHeaderProps> = ({
   const [dockWidth, setDockWidth] = useState(0)
   const dockWrapRef = useRef<HTMLDivElement | null>(null)
   const dockRef = useRef<HTMLDivElement | null>(null)
+  const headerContext = useMemo(() => (data ? buildHeaderContext(data) : null), [data])
+  const contextChips = headerContext
+    ? [headerContext.localPhase, headerContext.weatherCue, headerContext.nextWatch]
+    : []
+  const zoneLabel = formatZoneLabel(timeZone)
+
   useEffect(() => {
     const id = window.setInterval(() => setClock(new Date()), 60 * 1000)
     return () => window.clearInterval(id)
@@ -65,16 +80,41 @@ const HoloHeader: React.FC<HoloHeaderProps> = ({
   return (
     <div className="holo-header">
       <div className="holo-left">
-        <div className="holo-title">
-          <span className="holo-title-label">Weather Instrument Bridge</span>
-          {/* <span className="holo-title-sub">Operational Overview</span> */}
+        <div className="holo-hero-row">
+          <div className="holo-location-hero">
+            <span className="holo-title-label">Weather Instrument Bridge</span>
+            <div className="holo-location-row">
+              <span className="holo-location-name">{location ? location.name : "Locating…"}</span>
+              <span className="holo-location-country">
+                {location?.country ? location.country : location ? "Regional context syncing" : "Waiting for location"}
+              </span>
+            </div>
+          </div>
+          <div className="holo-local-context">
+            <span className="holo-local-context-label">Local time</span>
+            <span className="holo-local-context-time">{formatTime(clock, timeZone)}</span>
+            <span className="holo-local-context-meta">{formatDate(clock, timeZone)} · {zoneLabel}</span>
+          </div>
         </div>
-        <div className="holo-location">
-          <span className="label">Location</span>
-          <span className="value">{location ? location.name : "Locating…"}</span>
-          {location?.country ? <span className="muted">{location.country}</span> : null}
+        <div className="holo-context-row">
+          <div className="holo-search-shell">
+            <LocationSearch onSelect={onSelectLocation} />
+          </div>
+          {contextChips.length ? (
+            <div className="holo-context-strip" aria-label="Header context">
+              {contextChips.map((chip) => (
+                <div
+                  key={`${location?.id ?? "unknown"}-${chip.label}-${chip.value}`}
+                  className="holo-context-chip"
+                >
+                  <span className="holo-context-chip-label">{chip.label}</span>
+                  <span className="holo-context-chip-value">{chip.value}</span>
+                  <span className="holo-context-chip-detail">{chip.detail}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
-        <LocationSearch onSelect={onSelectLocation} />
       </div>
       <div
         className="status-dock-wrap"

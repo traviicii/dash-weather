@@ -1,0 +1,7 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Isobar Track symbol -->
+  <path d="M22 18H49C67 18 79 29 79 48C79 67 67 78 49 78H22" stroke="#C7D3E1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M31 29H48C60 29 68 36 68 48C68 60 60 67 48 67H31" stroke="#C7D3E1" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.72"/>
+  <path d="M39 39H47C54 39 59 43 61 48C59 53 54 57 47 57H39" stroke="#C7D3E1" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.48"/>
+  <path d="M36 72L47 54L58 61L74 37" stroke="#F0C808" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

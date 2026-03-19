@@ -1,0 +1,13 @@
+<svg width="720" height="160" viewBox="0 0 720 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="24" y="46" width="120" height="68" rx="16" stroke="#C7D3E1" stroke-width="6"/>
+  <path d="M38 80H130" stroke="#C7D3E1" stroke-width="5" stroke-linecap="round"/>
+  <path d="M84 56V104" stroke="#C7D3E1" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+  <path d="M54 80V66" stroke="#C7D3E1" stroke-width="4" stroke-linecap="round"/>
+  <path d="M70 80V70" stroke="#C7D3E1" stroke-width="3.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M98 80V70" stroke="#C7D3E1" stroke-width="3.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M114 80V66" stroke="#C7D3E1" stroke-width="4" stroke-linecap="round"/>
+  <path d="M84 63L96 80H72L84 63Z" fill="#F0C808"/>
+  <path d="M156 80H180" stroke="#F0C808" stroke-width="6" stroke-linecap="round"/>
+  <text x="202" y="89" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="46" font-weight="600" letter-spacing="0.1em">DASH</text>
+  <text x="388" y="89" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="30" font-weight="600" letter-spacing="0.16em">WEATHER</text>
+</svg>

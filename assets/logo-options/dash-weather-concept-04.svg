@@ -1,0 +1,11 @@
+<svg width="720" height="160" viewBox="0 0 720 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- North Marker -->
+  <path d="M62 123L112 38L171 87L133 96L124 136L62 123Z" stroke="#C7D3E1" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M112 56L141 84" stroke="#F0C808" stroke-width="8" stroke-linecap="round"/>
+  <path d="M54 135H184" stroke="#C7D3E1" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="184" cy="135" r="6" fill="#F0C808"/>
+  <text x="234" y="77" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="46" font-weight="600" letter-spacing="0.14em">DASH</text>
+  <path d="M458 68H492" stroke="#F0C808" stroke-width="6" stroke-linecap="round"/>
+  <text x="516" y="77" fill="#C7D3E1" font-family="'IBM Plex Sans', sans-serif" font-size="34" font-weight="600" letter-spacing="0.18em">WEATHER</text>
+  <text x="235" y="116" fill="#C7D3E1" opacity="0.76" font-family="'IBM Plex Mono', monospace" font-size="22" font-weight="500" letter-spacing="0.22em">HEADER LOCKUP / SYMBOL-READY</text>
+</svg>
